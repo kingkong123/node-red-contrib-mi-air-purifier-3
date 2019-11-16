@@ -1,0 +1,44 @@
+<script type="text/javascript">
+  RED.nodes.registerType('miot-airpurifier', {
+    category: 'miot-airpurifier',
+    color: '#00bc9c',
+    icon: 'mi.png',
+    defaults: {
+      name: {
+        value: ''
+      },
+      ip: {
+        value: null,
+        required: true
+      },
+      token: {
+        value: null,
+        required: true
+      }
+    },
+    inputs: 1,
+    outputs: 1,
+    outputLabels: ['json'],
+    paletteLabel: 'Air Purifier 3',
+    label: function() {
+      return this.name || 'Air Purifier 3';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="miot-airpurifier">
+  <div class="form-row">
+      <label for="node-input-name"><i class="icon-bookmark"></i> Name</label>
+      <input type="text" id="node-input-name">
+  </div>
+
+  <div class="form-row">
+      <label for="node-input-ip"><i class="icon-bookmark"></i> IP Address</label>
+      <input type="text" id="node-input-ip">
+  </div>
+
+  <div class="form-row">
+      <label for="node-input-token"><i class="icon-bookmark"></i> Token</label>
+      <input type="text" id="node-input-token">
+  </div>
+</script>
