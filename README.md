@@ -6,7 +6,7 @@ Based on a custom Miio package (https://github.com/kingkong123/miio)
 
 ### Installation
 
-`npm install node-red-contrib-mi-air-purifier-3`
+`npm install node-red-contrib-mi-air-purifier3`
 
 ### Usage
 
