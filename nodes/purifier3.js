@@ -81,7 +81,9 @@ module.exports = function(RED) {
         default:
       }
 
-      await this.refreshTimer();
+      setTimeout(() => {
+        await this.refreshTimer();
+      }, 250);
     }
 
     async nodeStart() {
