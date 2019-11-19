@@ -81,7 +81,7 @@ module.exports = function(RED) {
         default:
       }
 
-      setTimeout(() => {
+      setTimeout(async () => {
         await this.refreshTimer();
       }, 250);
     }
@@ -149,7 +149,8 @@ module.exports = function(RED) {
               'temperature',
               'humidity',
               'fan',
-              'buzzer'
+              'buzzer',
+              'led_brightness'
             ]);
 
             this.send({
