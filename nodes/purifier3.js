@@ -81,9 +81,13 @@ module.exports = function(RED) {
         default:
       }
 
-      setTimeout(async () => {
+      if (control === 'power' && value === true) {
+        setTimeout(async () => {
+          await this.refreshTimer();
+        }, 2000);
+      } else {
         await this.refreshTimer();
-      }, 250);
+      }
     }
 
     async nodeStart() {
