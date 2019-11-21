@@ -36,8 +36,8 @@ module.exports = function(RED) {
         try {
           await this.connect();
         } catch ({ message }) {
-          this.warn(`Erro: ${message}`);
-          console.log(`Erro: ${message}`);
+          this.warn(`Error: ${message}`);
+          console.log(`Error: ${message}`);
         }
       }
 
@@ -144,8 +144,8 @@ module.exports = function(RED) {
         try {
           await this.connect();
         } catch ({ message }) {
-          this.warn(`Erro: ${message}`);
-          console.log(`Erro: ${message}`);
+          this.warn(`Error: ${message}`);
+          console.log(`Error: ${message}`);
         }
       }
 
