@@ -109,7 +109,7 @@ module.exports = function(RED) {
           this.device = device;
           this.did = device.handle.api.id;
 
-          node.status({});
+          this.status({});
 
           resolve(device);
         } catch (err) {
@@ -171,6 +171,8 @@ module.exports = function(RED) {
 
             this.device.destroy();
             this.device = null;
+
+            this.status({});
 
             resolve(true);
           } catch (err) {
