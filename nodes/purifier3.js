@@ -1,7 +1,7 @@
 const miio = require('miio');
 
 module.exports = function(RED) {
-  class MiiotAirpurifier {
+  class MiotAirpurifier {
     constructor(n) {
       RED.nodes.createNode(this, n);
 
@@ -33,8 +33,12 @@ module.exports = function(RED) {
 
     async onInput(message) {
       if (!this.device) {
-        console.log('NO DEVICE FOUND');
-        return;
+        try {
+          await this.connect();
+        } catch ({ message }) {
+          this.warn(`Erro: ${message}`);
+          console.log(`Erro: ${message}`);
+        }
       }
 
       const { payload } = message;
@@ -84,28 +88,18 @@ module.exports = function(RED) {
       if (control === 'power' && value === true) {
         setTimeout(async () => {
           await this.refreshTimer();
-        }, 2000);
+        }, 3000);
       } else {
         await this.refreshTimer();
       }
     }
 
     async nodeStart() {
-      try {
-        const r = await this.connect();
-
-        this.did = r.handle.api.id;
-
-        this.createTimer();
-      } catch ({ message }) {
-        console.log(`nodeStart error: ${message}`);
-      }
+      this.createTimer();
     }
 
     connect() {
       return new Promise(async (resolve, reject) => {
-        this.miio = miio;
-
         try {
           const device = await miio.device({
             address: this.config.ip,
@@ -113,22 +107,27 @@ module.exports = function(RED) {
           });
 
           this.device = device;
+          this.did = device.handle.api.id;
+
+          node.status({});
 
           resolve(device);
         } catch (err) {
-          this.warn('Miio Airpurifier Error: ' + err.message);
-          node.status({ fill: 'red', shape: 'ring', text: err.message });
+          this.warn('Miot Airpurifier Error: ' + err.message);
+          this.status({ fill: 'red', shape: 'ring', text: err.message });
           reject(err);
         }
       });
     }
 
     async createTimer() {
-      await this.getStatus();
-
-      this.refreshStatusTimer = setInterval(async () => {
+      try {
         await this.getStatus();
-      }, 60000);
+
+        this.refreshStatusTimer = setInterval(async () => {
+          await this.getStatus();
+        }, 120000);
+      } catch ({ message }) {}
     }
 
     async refreshTimer() {
@@ -140,7 +139,16 @@ module.exports = function(RED) {
       await this.createTimer();
     }
 
-    getStatus() {
+    async getStatus() {
+      if (!this.device) {
+        try {
+          await this.connect();
+        } catch ({ message }) {
+          this.warn(`Erro: ${message}`);
+          console.log(`Erro: ${message}`);
+        }
+      }
+
       return new Promise(async (resolve, reject) => {
         if (this.device !== null) {
           try {
@@ -161,21 +169,21 @@ module.exports = function(RED) {
               payload: device
             });
 
-            resolve(device);
+            this.device.destroy();
+            this.device = null;
+
+            resolve(true);
           } catch (err) {
             console.log('Encountered an error while controlling device');
             console.log('Error(2) was:');
             console.log(err.message);
-            this.connect();
+            // this.connect();
             reject(err);
           }
-        } else {
-          this.connect();
-          reject('No device');
         }
       });
     }
   }
 
-  RED.nodes.registerType('miot-airpurifier', MiiotAirpurifier, {});
+  RED.nodes.registerType('miot-airpurifier', MiotAirpurifier, {});
 };
