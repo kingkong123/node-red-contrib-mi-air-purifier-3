@@ -1,5 +1,7 @@
 const miio = require('miio');
 
+const MIN = 1000 * 60;
+
 module.exports = function(RED) {
   class MiotAirpurifier {
     constructor(n) {
@@ -87,10 +89,10 @@ module.exports = function(RED) {
 
       if (control === 'power' && value === true) {
         setTimeout(async () => {
-          await this.refreshTimer();
+          await this.getStatus();
         }, 3000);
       } else {
-        await this.refreshTimer();
+        await this.getStatus();
       }
     }
 
@@ -126,8 +128,12 @@ module.exports = function(RED) {
 
         this.refreshStatusTimer = setInterval(async () => {
           await this.getStatus();
-        }, 120000);
-      } catch ({ message }) {}
+        }, MIN * 15);
+      } catch ({ message }) {
+        setTimeout(async () => {
+          this.refreshTimer();
+        }, MIN);
+      }
     }
 
     async refreshTimer() {
@@ -150,9 +156,9 @@ module.exports = function(RED) {
       }
 
       return new Promise(async (resolve, reject) => {
-        if (this.device !== null) {
+        if (this.device) {
           try {
-            const device = await this.device.loadProperties([
+            const values = await this.device.loadProperties([
               'mode',
               'filter1_life',
               'aqi',
@@ -166,11 +172,8 @@ module.exports = function(RED) {
             ]);
 
             this.send({
-              payload: device
+              payload: values
             });
-
-            this.device.destroy();
-            this.device = null;
 
             this.status({});
 
@@ -179,8 +182,12 @@ module.exports = function(RED) {
             console.log('Encountered an error while controlling device');
             console.log('Error(2) was:');
             console.log(err.message);
-            // this.connect();
             reject(err);
+          } finally {
+            if (this.device) {
+              this.device.destroy();
+              this.device = null;
+            }
           }
         }
       });
